@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>HSCSA - High School CS Clubs Association</title>
+	<meta charset="UTF-8">
+	<meta name="renderer" content="webkit">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<link rel="icon" href="monthlyLogo.png">
+	<meta name="keywords" content="HSCSA,High School,Club,CS,Computer Science,Association">
+	<meta name="description" content="High School CS Clubs Association is a new student-led group joined by clubs from high schools around all the US. There has always been a scarcity of High School CS communities and events, and especially now due to the pandemic. Our mission is thus to take the initiative and promote a tighter CS community">
+	<meta name="Author" content="HSCSA">
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta property="og:type" content="website">
+	<meta property="og:url" content="https://hscsa.org/" />
+	<meta property="og:title" content="HSCSA - High School CS Clubs Association" />
+	<meta property="og:description" content="High School CS Clubs Association is a new student-led group joined by clubs from high schools around the US. There has always been a scarcity of High School CS communities and events, and especially now due to the pandemic. Our mission is thus to take the initiative and promote a tighter CS community" />
+	<meta property="og:image" content="https://hscsa.org/logoSlogan.png" />
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+	<link href="css/monthly.css" rel="stylesheet" crossorigin="anonymous">
+	<link href="css/lr.css" rel="stylesheet" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+	
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+	<script src="javascript/cookieIO.js"></script>
+	<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+	<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body style="background-color: #F0F0F0;">
+	<script type="text/javascript">
+		var socket = io();
+		var permission = 0;
+		var name = "";
+
+		socket.on("profileRes",(res) => {
+			permission = res["permission"];
+			name = res["name"];
+			if((permission & 3) == 0) {
+				alert("You lack the permission to be on this page :<");
+				window.location.href = "/monthly";
+			}
+			socket.emit("getProposals",id);
+		});
+
+		function logout() {
+			writeCookie("id",'',3);
+			window.location.replace("login");
+		}
+
+		function postProposal() {
+			var res = {};
+			res["pname"] = $("#pname").val();
+			res["difficulty"] = $("#difficulty").val();
+			res["categories"] = $("#categories").val();
+			res["statement"] = $("#statement").val();
+			res["solution"] = $("#solution").val();
+			socket.emit("postProposal",id,res);
+		}
+
+		socket.on("postProposalRes",(res) => {
+			if(res == 1) {
+				alert("Proposal is successfully posted!");
+				location.reload();
+			}else if(res == -1) {
+				alert("Not enough permission!");
+			}
+		});
+
+		socket.on("getProposalsRes",(res) => {
+			for(var i = res.length - 1;i >= 0;--i) {
+				if(res[i]["author"] == name) {
+					$("#yourproposals").append(craftProposal(res[i],true));
+				}
+				$("#allproposals").append(craftProposal(res[i]));
+			}
+			MathJax.typeset();
+		});
+
+		socket.on("deleteProposalRes",(res) => {
+			if(res == 1) {
+				location.reload();
+			}else{
+				alert("Some error occured!");
+			}
+		})
+
+		function getStatuses(permission) {
+			var status = "";
+			if(permission & 1) {
+				status += craftTitle("Used");
+			}else{
+				status += craftTitle("Unused");
+			}
+			return status;
+		}
+
+		function deleteProposal(pid) {
+			socket.emit("deleteProposal",id,pid);
+		}
+
+		function craftProposal(prop,del = false) {
+			var res = 
+			'<div class="proposal">' +
+			'<h3>' + prop["pname"] + '</h3>' +
+			'<div class="proposal-dif">Author: ' + prop["author"] + '</div>' +
+			'<div class="proposal-dif">Difficulty: ' + prop["difficulty"] + '</div>' +
+			'<div class="proposal-dif">Categories: ' + prop["categories"] +
+			'</div>' +
+			'<hr>' +
+			'<div class="proposal-status">' +
+			'<b>Status: </b>' + getStatuses(prop["status"]) +
+			'</div>' +
+			'<hr>' +
+			'<div class="proposal-ss">' +
+				'<b>Statement: </b>' + prop["statement"] +
+			'</div>' +
+			'<hr>' +
+			'<div class="proposal-ss">' +
+				'<b>Solution: </b>' + prop["solution"] +
+			'</div>';
+			if(del) res += '<br><button type="submit" class="btn btn-md mb-2 btn-danger" onclick="deleteProposal(' + prop["id"] + ');">Delete</button>';
+			res += '</div>';
+			return res;
+		}
+
+		function craftTitle(title) {
+			return '<span class="member-title">' + title + '</span> ';
+		}
+
+		function displayStatus() {
+			$("#permissions").empty();
+			if(permission == 0) {
+				$("#permissions").html("<p style='font-size: 15px;color: gray'><i>You don't have any special status right now D:</i></p>");
+				return 0;
+			}
+			if(permission & 1 << 0) $("#permissions").append(craftTitle("Admin"));
+			if(permission & 1 << 1) $("#permissions").append(craftTitle("Representative"));
+			if(permission & 1 << 2) $("#permissions").append(craftTitle("Verified"));
+		}
+
+		function craftTitle(title) {
+			return '<span class="member-title">' + title + '</span> ';
+		}
+
+		var id = readCookie("id");
+
+		if(id == '') {
+			alert(">.< You're not logged in properly");
+			window.location.replace("login");
+		}
+		
+		socket.emit("reqProfile",id);
+
+
+	</script>
+	<nav class="navbar navbar-expand-lg navbar-light" style="background-color: white">
+			<a class="navbar-brand" href="/" style="margin-left: 20px;"><img class="titleIMG" src="logoSlogan.png" style="height: 40px;"></img></a>
+
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+			</button>
+
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav mr-auto navItem">
+					<li class="nav-item">
+						<a class="nav-link" href="monthly">Monthly</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="contest">Contest</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link active" href="proposal">Proposals</a>
+					</li>
+				</ul>
+				<div class="form-inline">
+					<button class="btn btn-outline-danger lrB navBtn" type="button" onclick="window.location.replace('profile');" id="usrButton">Profile</button>
+					<button class="btn btn-outline-secondary lrB navBtn" type="button" onclick="logout();">Logout</button>
+				</div>
+			</div>
+		</nav>
+	<div class="topTitle">
+		Proposal
+	</div>
+	<div class="container">
+	<div class="row" style="margin-bottom: 50px">
+		<div class="col"></div>
+		<div class="col-lg-9" id="comments">
+			<!-- <h4>Leave some comments~</h4> -->
+			<div class="card proposal-post shadow-sm">
+				<div class="card-header">
+					<h5>New Proposal</h5>
+				</div>
+				<div class="card-body">
+					<div class="form-group">
+						<input type="text" class="form-control" id="pname" placeholder="Problem Name" style="margin-right: 1%">
+						<br>
+						<textarea type="text" class="form-control proposal-post-msg" id="statement" placeholder="Write your problem statement here. You can use latex with \( \) tags. Remember to separate your lines with <br> tags too. Please be brief here and just write the general idea as we will expand on it if it gets selected" rows="4"></textarea>
+						<br>
+						<textarea type="text" class="form-control proposal-post-msg" id="solution" placeholder="Write your problem solution here. You can use latex with \( \) tags. Remember to separate your lines with <br> tags too. Please be brief here and just write the general idea as we will expand on it if it gets selected" rows="4"></textarea>
+						<br>
+						<input type="text" class="form-control" id="categories" placeholder="Categories. Separate by comma (ex. Graph theory, DP, math)" style="margin-right: 1%">
+						<br>
+						<input type="number" class="form-control" id="difficulty" placeholder="Difficulty from 1 to 10. 1 Being easy bronze and 10 being hard plat" style="margin-right: 1%">
+						<center><button type="submit" class="btn btn-lg mb-2 proposal-btn" id="btnPost" onclick="postProposal();" style="background-color: #a251ff;color: white">Post</button></center>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col"></div>
+	</div>
+	</div>
+
+	<div class="whiteContainer" style="font-size: 21px;" id="yourproposals">
+		<h2>Your proposals</h2>
+		<hr>
+	</div>
+
+	<div class="whiteContainer" style="font-size: 21px;" id="allproposals">
+		<h2>All proposals</h2>
+		<hr>
+	</div>
+
+	<script type="text/javascript">
+		if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+			$("#sisterTitle").css("fontSize","50px");
+			$("#bt").css("margin-top","200px");
+		}
+	</script>
+
+
+
+</body>
+</html>

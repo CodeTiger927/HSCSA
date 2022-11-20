@@ -1,0 +1,180 @@
+body {
+	margin: 0;
+}
+
+.section1 {
+	width: 100%;
+	background-color: #a251ff;
+	text-align: center;
+	padding-bottom: 80px;
+}
+
+.section2 {
+	padding-top: 50px;
+	width: 100%;
+	background-color: #e5e7ea;
+	text-align: center;
+	padding-bottom: 100px;
+}
+
+.sec2-title {
+	color: #111827;
+	font-size: 2.5rem;
+	font-weight: 600;
+	line-height: 1.5rem;
+}
+
+.sec2-row {
+	display: flex;
+	flex-wrap: wrap;
+	margin-left: 6%;
+	width: 88%;
+	margin-top: 20px;
+}
+
+.sec2-row > div {
+	flex-grow: 1;
+	flex-basis: 0;
+	margin-left: 10px;
+	margin-right: 10px;
+	box-shadow: 0 2px 3px rgb(8 8 8 / 10%), 0 0 0 1px rgb(8 8 8 / 10%);
+	border-radius: 10px;
+	background-color: white;
+	min-width: 300px;
+	margin-top: 20px;
+}
+
+.message-header {
+	width: 100%;
+	background-color: #a251ff;
+	border-radius: 10px 10px 0 0;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	font-size: 20px;
+	color: white;
+	font-weight: 600;
+}
+
+.message-missions-content {
+	width: 100%;
+	padding: 20px 40px 20px 40px;
+	font-size: 16px;
+	color: #4a4a4a;
+	text-align: left;
+}
+
+.sec2-mission {
+	margin-top: 30px;
+	margin-left: 20%;
+	width: 60%;
+	border-radius: 20px;
+	background-color: white;
+	box-shadow: 0 2px 3px rgb(8 8 8 / 10%), 0 0 0 1px rgb(8 8 8 / 10%);
+	font-size: 1.2rem;
+	padding: 30px 5% 30px 5%;
+	text-align: left;
+}
+
+.logo {
+	height: 200px;
+	margin-top: 50px;
+}
+
+.fontText {
+	font-family: Inter var,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+}
+
+.title1 {
+	margin-top: 10px;
+	font-size: 3.75rem;
+	line-height: 1;
+	color: white;
+	font-weight: 700;
+	/*text-shadow: 2px 2px #777777;*/
+}
+
+.title2 {
+	margin-top: 30px;
+	font-size: 1.2rem;
+	color: white;
+}
+
+.section3 {
+	padding-top: 50px;
+	width: 100%;
+	background-color: #e5e7ea;
+	text-align: center;
+	padding-bottom: 50px;
+}
+
+.sec3-title {
+	color: #111827;
+	font-size: 2.5rem;
+	font-weight: 600;
+}
+
+.navbar-nav > li{
+	padding-left: 15px;
+	padding-right: 15px;
+	font-size: 1.1rem;
+	font-weight: 540;
+}
+
+.IN-PROGRESS {
+	margin-top: 50px;
+	padding-top: 100px;
+	padding-bottom: 100px;
+}
+
+.navBtn {
+    margin-right: 30px;
+    width: 100px;
+}
+
+.monthlyMain {
+	width: 100%;
+	padding-top: 50px;
+	padding-bottom: 100px;
+	text-align: center;
+	background-color: #F0F0F0;
+}
+
+.countdown {
+	margin-top: 30px;
+	width: 50%;
+	border: 2px solid black;
+	margin-left: 25%;
+	background-color: #FFFFFF;
+	border-radius: 20px;
+	padding-left: 5%;
+	padding-right: 5%;
+	padding-top: 50px;
+	padding-bottom: 50px;
+	box-shadow: 0 10px 10px rgb(8 8 8 / 10%), 0 0 0 1px rgb(8 8 8 / 10%);
+}
+
+.countdown-cell {
+	font-size: 20px;
+}
+
+.countdown-num {
+	font-size: 40px;
+	font-weight: 600;
+}
+
+.countdown-title {
+	margin-top: 30px;
+	font-size: 36px;
+	font-weight: 650;
+}
+
+.countdown-subtitle {
+	margin-top: 30px;
+	font-size: 20px;
+}
+
+.countdown-subsubtitle {
+	font-size: 16px;
+	text-shadow: 1px 1px 1px rgb(0 0 0 / 10%);
+	color: #505050;
+}

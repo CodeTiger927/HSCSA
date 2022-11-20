@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>HSCSA - High School CS Clubs Association</title>
+	<meta charset="UTF-8">
+	<meta name="renderer" content="webkit">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<link rel="icon" href="monthlyLogo.png">
+	<meta name="keywords" content="HSCSA,High School,Club,CS,Computer Science,Association">
+	<meta name="description" content="High School CS Clubs Association is a new student-led group joined by clubs from high schools around all the US. There has always been a scarcity of High School CS communities and events, and especially now due to the pandemic. Our mission is thus to take the initiative and promote a tighter CS community">
+	<meta name="Author" content="HSCSA">
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta property="og:type" content="website">
+	<meta property="og:url" content="https://hscsa.org/" />
+	<meta property="og:title" content="HSCSA - High School CS Clubs Association" />
+	<meta property="og:description" content="High School CS Clubs Association is a new student-led group joined by clubs from high schools around the US. There has always been a scarcity of High School CS communities and events, and especially now due to the pandemic. Our mission is thus to take the initiative and promote a tighter CS community" />
+	<meta property="og:image" content="https://hscsa.org/logoSlogan.png" />
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+	<link href="css/monthly.css" rel="stylesheet" crossorigin="anonymous">
+	<link href="css/lr.css" rel="stylesheet" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+	
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+	<script src="javascript/cookieIO.js"></script>
+</head>
+<body style="background-color: #F0F0F0;">
+	<script type="text/javascript">
+		var socket = io();
+		var permission = 0;
+
+		socket.on("profileRes",(res) => {
+			$("#name").val(res["display"]);
+			$("#organization").val(res["organization"]);
+			$("#members").val(res["members"]);
+			$("#email").val(res["email"]);
+			permission = res["permission"];
+			displayStatus();
+		});
+
+		socket.on("saveChangesRes",(sta) => {
+			if(sta == -1) {
+				alert("Something went wrong :/ try again?");
+			}else{
+				alert("Success!");
+			}
+		});
+
+		function logout() {
+			writeCookie("id",'',3);
+			window.location.replace("login");
+		}
+
+		function saveChanges() {
+			var res = {};
+			res["display"] = $("#name").val();
+			res["organization"] = $("#organization").val();
+			res["members"] = $("#members").val();
+			res["email"] = $("#email").val();
+			socket.emit("saveChanges",id,res);
+		}
+
+		function craftTitle(title) {
+			return '<span class="member-title">' + title + '</span> ';
+		}
+
+		function displayStatus() {
+			$("#permissions").empty();
+			if(permission == 0) {
+				$("#permissions").html("<p style='font-size: 15px;color: gray'><i>You don't have any special status right now D:</i></p>");
+				return 0;
+			}
+			if(permission & (1 << 0)) $("#permissions").append(craftTitle("Admin"));
+			if(permission & (1 << 1)) $("#permissions").append(craftTitle("Representative"));
+			if(permission & (1 << 2)) $("#permissions").append(craftTitle("Verified"));
+		}
+
+		var id = readCookie("id");
+
+		if(id == '') {
+			alert(">.< You're not logged in properly");
+			window.location.replace("login");
+		}
+		
+		socket.emit("reqProfile",id);
+
+
+	</script>
+	<nav class="navbar navbar-expand-lg navbar-light" style="background-color: white">
+			<a class="navbar-brand" href="/" style="margin-left: 20px;"><img class="titleIMG" src="logoSlogan.png" style="height: 40px;"></img></a>
+
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+			</button>
+
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav mr-auto navItem">
+					<li class="nav-item">
+						<a class="nav-link" href="monthly">Monthly</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="contest">Contest</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="proposal">Proposals</a>
+					</li>
+				</ul>
+				<div class="form-inline">
+					<button class="btn btn-outline-danger lrB navBtn" type="button" onclick="window.location.replace('profile');" id="usrButton">Profile</button>
+					<button class="btn btn-outline-secondary lrB navBtn" type="button" onclick="logout();">Logout</button>
+				</div>
+			</div>
+		</nav>
+	<div class="topTitle">
+		Profile
+	</div>
+
+	<div class="whiteContainer" style="font-size: 21px;">
+		<label for="name"><b>Display Name</b></label>
+		<input type="text" class="form-control" id="name" placeholder="Name displayed at ranking/proposals" style="margin-right: 1%">
+		<hr>
+		<label for="organization"><b>Organization</b></label>
+		<input type="text" class="form-control" id="organization" placeholder="Your affiliation - school club/other organizastion" style="margin-right: 1%">
+		<hr>
+		<label for="members"><b>Members</b></label>
+		<input type="text" class="form-control" id="members" placeholder="Members sharing this account" style="margin-right: 1%">
+		<hr>
+		<label for="email"><b>Email</b></label>
+		<input type="text" class="form-control" id="email" placeholder="Enter your email" style="margin-right: 1%">
+		<hr>
+		<label for="email"><b>Status</b></label>
+		<div id="permissions">
+		</div>
+		<hr>
+		<br>
+		<button type="submit" class="btn" onclick="saveChanges();" style="background-color: #a251ff;color: white">Save changes</button>
+	</div>
+
+	<script type="text/javascript">
+		if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+			$("#sisterTitle").css("fontSize","50px");
+			$("#bt").css("margin-top","200px");
+		}
+	</script>
+
+
+
+</body>
+</html>
